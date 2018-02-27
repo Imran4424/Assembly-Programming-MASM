@@ -1,0 +1,121 @@
+org 100h
+.model small
+.stack 100h
+.data
+STRING DB 100 DUP(?)
+SUBSTRING DB 100 DUP(?)
+MSG DB "Please input your string: $"
+MSG2 DB 10,13,"Enter the Sub String: $"
+MSG3 DB 10,13,"Sub String Found... $"
+MSG4 DB 10,13,"Sub String Isn't Found... $"
+
+FLAG DB 'N'
+LENGTH DW ?
+
+.code
+MAIN PROC
+	
+	MOV AX,@DATA   ; loading segment registers
+	MOV DS,AX      ;    to use
+
+	MOV AH,9
+	LEA DX,MSG
+	INT 21H
+
+	MOV SI,0  
+
+	MOV AH,1
+
+	WHILE:
+
+		INT 21H
+		CMP AL,13   ;carge return
+		JE END_WHILE
+
+		MOV STRING[SI],AL
+		INC SI
+
+		JMP WHILE
+
+	END_WHILE:
+		MOV LENGTH,SI
+
+	MOV AH,9
+	LEA DX,MSG2
+	INT 21H
+
+	MOV SI,0
+	MOV AH,1
+
+	FOR:
+		INT 21H
+		CMP AL,13
+		JE END_FOR
+
+		MOV SUBSTRING[SI],AL
+		INC SI
+
+		JMP FOR
+
+	END_FOR:
+
+
+	SUB LENGTH,SI
+	DEC SI
+	MOV BX,SI
+	MOV DX,0
+
+	DO_WHILE:
+		CMP DX,LENGTH
+        JG OUTPUT
+
+		MOV SI,DX
+		MOV DI,0
+
+		FOR_EACH:
+			CMP DI,BX
+			JG END_FOR_EACH
+
+			MOV AL,STRING[SI]
+			CMP AL,SUBSTRING[DI]
+			JNE POS1
+
+			INC SI
+			INC DI
+			JMP FOR_EACH
+
+		END_FOR_EACH:
+			MOV FLAG,'Y'
+			JMP OUTPUT
+
+		POS1:
+
+			INC DX
+			JMP DO_WHILE
+
+
+	END_DO_WHILE:
+
+
+	OUTPUT:
+
+		MOV AH,9
+
+		CMP FLAG,'Y'
+		JE ACCEPTED
+
+		LEA DX,MSG4
+		INT 21H
+		JMP FINISH
+
+		ACCEPTED:
+			LEA DX,MSG3
+			INT 21H
+
+	
+	FINISH:
+		MOV AH,4CH
+		INT 21H		
+
+	MAIN ENDP
+END MAIN	
