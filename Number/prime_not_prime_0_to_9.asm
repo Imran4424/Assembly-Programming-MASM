@@ -1,0 +1,49 @@
+org 100h
+.model small
+.stack 100h
+.data
+MSG DB "Please input a digit from 0 to 9: $"
+MSG2 DB 10,13,"THE DIGIT IS PRIME! $"
+MSG3 DB 10,13,"THE DIGIT IS NOT PRIME! $"
+
+.code
+MAIN PROC
+	MOV AX,@DATA
+	MOV DS,AX
+
+	MOV AH,9
+	LEA DX,MSG
+	INT 21H
+
+	MOV AH,1
+	INT 21H
+
+	SUB AL,'0'
+	MOV BL,AL
+
+	CMP AL,2
+	JL NOT_PRIME
+	JE PRIME
+
+	AND BL,1
+	JZ NOT_PRIME
+	JMP PRIME
+
+	PRIME:
+		CMP AL,9
+		JE NOT_PRIME
+
+		MOV AH,9
+		LEA DX,MSG2
+		JMP STOP
+
+	NOT_PRIME:
+		MOV AH,9
+		LEA DX,MSG3
+		JMP STOP
+
+	STOP:
+		INT 21H
+
+	MAIN ENDP
+END MAIN
