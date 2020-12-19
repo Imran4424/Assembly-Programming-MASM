@@ -1,3 +1,6 @@
+;This is a Assembly program
+;For determining odd/even number
+
 org 100h
 .model small
 .stack 100h
